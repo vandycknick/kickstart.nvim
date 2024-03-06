@@ -1,4 +1,4 @@
---[[
+--[[opts
 
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -118,6 +118,8 @@ vim.opt.clipboard = 'unnamedplus'
 -- Enable break indent
 vim.opt.breakindent = true
 
+vim.opt.smartindent = true
+
 -- Save undo history
 vim.opt.undofile = true
 
@@ -143,7 +145,8 @@ vim.opt.splitbelow = true
 --  See `:help 'list'`
 --  and `:help 'listchars'`
 vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+-- vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.opt.listchars = { tab = '»·', trail = '·', nbsp = '·', space = '·' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
@@ -153,6 +156,13 @@ vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
+
+-- Hide the cmdline and have it collapse into the statusline.
+vim.opt.cmdheight = 0
+
+vim.opt.termguicolors = true
+
+vim.wo.relativenumber = true
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -189,6 +199,13 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<C-s>', '<cmd> w <CR>', { desc = 'Save file.' })
+
+vim.keymap.set('n', '<leader>tr', '<cmd> set rnu! <CR>', { desc = 'Toggle relative number' })
+
+-- Open Terminal Window
+local default_shell = os.getenv 'SHELL' or '/bin/bash'
+vim.keymap.set({ 'n' }, '<m-h>', ':split  term://' .. default_shell .. '<cr>10<C-w>_', { desc = 'Open terminal window.' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -201,6 +218,15 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function()
     vim.highlight.on_yank()
+  end,
+})
+
+vim.api.nvim_create_autocmd('TermOpen', {
+  desc = 'remove line numbers in terminal',
+  group = vim.api.nvim_create_augroup('kickstart-term', { clear = true }),
+  callback = function()
+    vim.wo.relativenumber = false
+    vim.wo.number = false
   end,
 })
 
@@ -555,6 +581,7 @@ require('lazy').setup({
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
+      local util = require 'lspconfig/util'
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
@@ -566,8 +593,21 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
+        gopls = {
+          cmd = { 'gopls' },
+          filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+          root_dir = util.root_pattern('go.work', 'go.mod', '.git'),
+          settings = {
+            gopls = { -- https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+              usePlaceholders = true,
+              analyses = { -- https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
+                unusedparams = true,
+              },
+            },
+          },
+        },
+
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -652,9 +692,12 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+
+        go = { 'goimports', 'gofmt' },
+
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
+        python = { 'black', 'isort' },
+
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
         -- javascript = { { "prettierd", "prettier" } },
@@ -773,22 +816,133 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like:
+  --   { -- You can easily change to a different colorscheme.
+  --     -- Change the name of the colorscheme plugin below, and then
+  --     -- change the command in the config to whatever the name of that colorscheme is
+  --     --
+  --     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`
+  --     'folke/tokyonight.nvim',
+  --     lazy = false, -- make sure we load this during startup if it is your main colorscheme
+  --     priority = 1000, -- make sure to load this before all the other start plugins
+  --     config = function()
+  --       -- Load the colorscheme here.
+  --       -- Like many other themes, this one has different styles, and you could load
+  --       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --       vim.cmd.colorscheme 'tokyonight-night'
+  --       -- You can configure highlights by doing something like
+  --       vim.cmd.hi 'Comment gui=none'
+  --     end,
+  --   },
+  {
+    'rebelot/kanagawa.nvim',
+    lazy = false,
+    priority = 1000, -- Ensure it loads first
+    opts = {
+      compile = false,
+      theme = 'wave',
+      undercurl = true,
+      terminalColors = true,
+      colors = {
+        theme = {
+          all = {
+            ui = {
+              bg_gutter = 'none',
+            },
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      require('kanagawa').setup(opts)
+      -- Load the colorscheme here
+      vim.cmd.colorscheme 'kanagawa'
+      -- You can configure highlights by doing something like
       vim.cmd.hi 'Comment gui=none'
     end,
+  },
+
+  -- file managing , picker etc
+  {
+    'nvim-tree/nvim-tree.lua',
+    cmd = { 'NvimTreeToggle', 'NvimTreeFocus' },
+    init = function()
+      vim.api.nvim_set_keymap('n', '<C-n>', ':NvimTreeToggle<cr>', { silent = true, noremap = true })
+    end,
+    opts = {
+      filters = {
+        dotfiles = false,
+        exclude = { vim.fn.stdpath 'config' .. '/lua/custom' },
+      },
+      disable_netrw = true,
+      hijack_netrw = true,
+      hijack_cursor = true,
+      hijack_unnamed_buffer_when_opening = false,
+      sync_root_with_cwd = true,
+      update_focused_file = {
+        enable = true,
+        update_root = false,
+      },
+      view = {
+        adaptive_size = false,
+        side = 'left',
+        width = 35,
+        preserve_window_proportions = true,
+      },
+      git = {
+        enable = false,
+        ignore = true,
+      },
+      filesystem_watchers = {
+        enable = true,
+      },
+      actions = {
+        open_file = {
+          resize_window = true,
+        },
+      },
+      renderer = {
+        root_folder_label = false,
+        highlight_git = false,
+        highlight_opened_files = 'none',
+
+        indent_markers = {
+          enable = true,
+        },
+
+        icons = {
+          show = {
+            file = true,
+            folder = true,
+            folder_arrow = true,
+            git = false,
+          },
+
+          glyphs = {
+            default = '󰈚',
+            symlink = '',
+            folder = {
+              default = '',
+              empty = '',
+              empty_open = '',
+              open = '',
+              symlink = '',
+              symlink_open = '',
+              arrow_open = '',
+              arrow_closed = '',
+            },
+            git = {
+              unstaged = '✗',
+              staged = '✓',
+              unmerged = '',
+              renamed = '➜',
+              untracked = '★',
+              deleted = '',
+              ignored = '◌',
+            },
+          },
+        },
+      },
+    },
   },
 
   -- Highlight todo, notes, etc in comments
@@ -840,16 +994,11 @@ require('lazy').setup({
       auto_install = true,
       highlight = {
         enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      indent = { enable = true },
     },
     config = function(_, opts)
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-
       -- Prefer git instead of curl in order to improve connectivity in some environments
       require('nvim-treesitter.install').prefer_git = true
       ---@diagnostic disable-next-line: missing-fields
@@ -861,6 +1010,77 @@ require('lazy').setup({
       --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
       --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+    end,
+  },
+
+  {
+    'akinsho/bufferline.nvim',
+    lazy = false,
+    version = '*',
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    event = 'VeryLazy',
+    opts = {
+      options = {
+        separator_style = 'slant',
+        offsets = {
+          {
+            filetype = 'NvimTree',
+            text_align = 'left',
+            separator = false,
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      require('bufferline').setup(opts)
+    end,
+  },
+
+  {
+    'nvimdev/dashboard-nvim',
+    event = 'VimEnter',
+    opts = {
+      theme = 'hyper',
+      config = {
+        shortcut = {
+          { desc = '󰊳 Update', group = '@property', action = 'Lazy update', key = 'u' },
+          {
+            icon = ' ',
+            icon_hl = '@variable',
+            desc = 'Files',
+            group = 'Label',
+            action = 'Telescope find_files',
+            key = 'f',
+          },
+          {
+            desc = ' Apps',
+            group = 'DiagnosticHint',
+            action = 'Telescope app',
+            key = 'a',
+          },
+          {
+            desc = ' dotfiles',
+            group = 'Number',
+            action = 'Telescope dotfiles',
+            key = 'd',
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      local logo = [[
+      ███╗   ██╗██╗   ██╗██████╗ 
+      ████╗  ██║██║   ██║██╔══██╗
+      ██╔██╗ ██║██║   ██║██║  ██║
+      ██║╚██╗██║╚██╗ ██╔╝██║  ██║
+      ██║ ╚████║ ╚████╔╝ ██████╔╝
+      ╚═╝  ╚═══╝  ╚═══╝  ╚═════╝ 
+      ]]
+
+      logo = string.rep('\n', 8) .. logo .. '\n\n'
+
+      opts.config.header = vim.split(logo, '\n')
+      require('dashboard').setup(opts)
     end,
   },
 
@@ -907,6 +1127,10 @@ require('lazy').setup({
     },
   },
 })
+
+-- Use a single status line
+-- It's the lost vim.opt config because adding in the same place the other options are defined didn't work.
+vim.opt.laststatus = 3 -- global statusline
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
