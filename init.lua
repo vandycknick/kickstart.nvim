@@ -204,8 +204,42 @@ vim.keymap.set('n', '<C-s>', '<cmd> w <CR>', { desc = 'Save file.' })
 vim.keymap.set('n', '<leader>tr', '<cmd> set rnu! <CR>', { desc = 'Toggle relative number' })
 
 -- Open Terminal Window
-local default_shell = os.getenv 'SHELL' or '/bin/bash'
-vim.keymap.set({ 'n' }, '<m-h>', ':split  term://' .. default_shell .. '<cr>10<C-w>_', { desc = 'Open terminal window.' })
+local terminal_defaults = {
+  height = 15,
+}
+local terminal = nil
+vim.keymap.set({ 'n' }, '<m-h>', function()
+  if terminal == nil then
+    vim.cmd 'split'
+    vim.cmd 'terminal'
+    terminal = {
+      visible = false,
+      win = vim.api.nvim_get_current_win(),
+      buf = vim.api.nvim_get_current_buf(),
+      height = terminal_defaults.height,
+    }
+  end
+
+  if terminal.win ~= nil and vim.api.nvim_win_is_valid(terminal.win) == false then
+    terminal.win = nil
+    terminal.visible = false
+  end
+
+  if terminal.visible == true then
+    terminal.height = vim.api.nvim_win_get_height(terminal.win)
+    vim.api.nvim_win_close(terminal.win, false)
+    terminal.win = nil
+    terminal.visible = false
+  else
+    if terminal.win == nil then
+      vim.cmd 'split'
+      terminal.win = vim.api.nvim_get_current_win()
+    end
+    vim.api.nvim_win_set_height(terminal.win, terminal.height)
+    vim.api.nvim_win_set_buf(terminal.win, terminal.buf)
+    terminal.visible = true
+  end
+end, { desc = 'Toggle Terminal Window.' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -223,10 +257,18 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 vim.api.nvim_create_autocmd('TermOpen', {
   desc = 'remove line numbers in terminal',
-  group = vim.api.nvim_create_augroup('kickstart-term', { clear = true }),
+  group = vim.api.nvim_create_augroup('kickstart-term-open', { clear = true }),
   callback = function()
     vim.wo.relativenumber = false
     vim.wo.number = false
+  end,
+})
+
+vim.api.nvim_create_autocmd('TermClose', {
+  desc = 'Close window when terminal job ends',
+  group = vim.api.nvim_create_augroup('kickstart-term-close', { clear = true }),
+  callback = function()
+    terminal = nil
   end,
 })
 
@@ -622,6 +664,8 @@ require('lazy').setup({
         tsserver = {},
 
         terraformls = {},
+
+        astro = {},
 
         lua_ls = {
           -- cmd = {...},
