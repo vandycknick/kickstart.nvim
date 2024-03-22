@@ -662,10 +662,12 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
         tsserver = {},
+        astro = {},
+        eslint = {},
+        prettier = {},
 
         terraformls = {},
 
-        astro = {},
 
         lua_ls = {
           -- cmd = {...},
