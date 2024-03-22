@@ -668,6 +668,13 @@ require('lazy').setup({
 
         terraformls = {},
 
+        helm_ls = {
+          -- settings = {
+          --   yamlls = {
+          --     path = 'yaml-language-server',
+          --   },
+          -- },
+        },
 
         lua_ls = {
           -- cmd = {...},
