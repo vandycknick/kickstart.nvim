@@ -1208,7 +1208,7 @@ require('lazy').setup({
 })
 
 -- Use a single status line
--- It's the lost vim.opt config because adding in the same place the other options are defined didn't work.
+-- It's the last vim.opt config because adding in the same place the other options are defined didn't work.
 vim.opt.laststatus = 3 -- global statusline
 
 -- The line beneath this is called `modeline`. See `:help modeline`
