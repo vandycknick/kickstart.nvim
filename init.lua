@@ -919,6 +919,7 @@ require('lazy').setup({
       theme = 'wave',
       undercurl = true,
       terminalColors = true,
+      transparent = true,
       colors = {
         theme = {
           all = {
@@ -928,13 +929,18 @@ require('lazy').setup({
           },
         },
       },
+      overrides = function(colors)
+        local theme = colors.theme
+        return {
+          TabLine = { bg = theme.ui.bg_m3, fg = theme.ui.special },
+          TabLineFill = { bg = theme.ui.bg_m1 },
+        }
+      end,
     },
     config = function(_, opts)
       require('kanagawa').setup(opts)
       -- Load the colorscheme here
       vim.cmd.colorscheme 'kanagawa'
-      -- You can configure highlights by doing something like
-      vim.cmd.hi 'Comment gui=none'
     end,
   },
 
