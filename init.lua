@@ -1097,26 +1097,22 @@ require('lazy').setup({
   },
 
   {
-    'akinsho/bufferline.nvim',
-    lazy = false,
-    version = '*',
-    dependencies = 'nvim-tree/nvim-web-devicons',
-    event = 'VeryLazy',
+    'willothy/nvim-cokeline',
+    dependencies = {
+      'nvim-lua/plenary.nvim', -- Required for v0.4.0+
+      'nvim-tree/nvim-web-devicons', -- If you want devicons
+    },
     opts = {
-      options = {
-        separator_style = 'slant',
-        offsets = {
+      sidebar = {
+        filetype = { 'NvimTree' },
+        components = {
           {
-            filetype = 'NvimTree',
-            text_align = 'left',
-            separator = false,
+            text = '',
+            bg = 'TabLineFill',
           },
         },
       },
     },
-    config = function(_, opts)
-      require('bufferline').setup(opts)
-    end,
   },
 
   {
