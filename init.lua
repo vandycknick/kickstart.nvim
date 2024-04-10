@@ -661,7 +661,13 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        tsserver = {},
+        tsserver = {
+          root_dir = util.root_pattern 'package.json',
+          single_file_support = false,
+        },
+        denols = {
+          root_dir = util.root_pattern('deno.json', 'deno.jsonc'),
+        },
         astro = {},
         eslint = {},
         prettier = {},
