@@ -1120,7 +1120,12 @@ require('lazy').setup({
 
   {
     'nvimdev/dashboard-nvim',
-    event = 'VimEnter',
+    -- event = 'VimEnter',
+    -- TODO investigate if I can reuse Vimenter at some point
+    -- Using vim enter currently breaks opening stuff from stdin eg:
+    -- ls -alh | vim -
+    lazy = false,
+    priority = 1000,
     opts = {
       theme = 'hyper',
       config = {
@@ -1151,12 +1156,12 @@ require('lazy').setup({
     },
     config = function(_, opts)
       local logo = [[
-      ███╗   ██╗██╗   ██╗██████╗ 
+      ███╗   ██╗██╗   ██╗██████╗
       ████╗  ██║██║   ██║██╔══██╗
       ██╔██╗ ██║██║   ██║██║  ██║
       ██║╚██╗██║╚██╗ ██╔╝██║  ██║
       ██║ ╚████║ ╚████╔╝ ██████╔╝
-      ╚═╝  ╚═══╝  ╚═══╝  ╚═════╝ 
+      ╚═╝  ╚═══╝  ╚═══╝  ╚═════╝
       ]]
 
       logo = string.rep('\n', 8) .. logo .. '\n\n'
