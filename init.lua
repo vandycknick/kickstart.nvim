@@ -638,7 +638,6 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
         gopls = {
           cmd = { 'gopls' },
           filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
@@ -654,20 +653,17 @@ require('lazy').setup({
         },
 
         pyright = {},
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`tsserver`) will work just fine
+        rust_analyzer = {},
+
         tsserver = {
           root_dir = util.root_pattern 'package.json',
           single_file_support = false,
         },
-        denols = {
-          root_dir = util.root_pattern('deno.json', 'deno.jsonc'),
-        },
+
+        -- denols = {
+        --   root_dir = util.root_pattern('deno.json', 'deno.jsonc'),
+        -- },
+
         astro = {},
         eslint = {},
         prettier = {},
@@ -781,7 +777,8 @@ require('lazy').setup({
 
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        markdown = { 'prettierd', 'prettier' },
+        javascript = { 'prettierd', 'prettier' },
         typescript = { 'prettierd', 'prettier' },
         typescriptreact = { 'prettierd', 'prettier' },
       },
