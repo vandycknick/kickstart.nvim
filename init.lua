@@ -940,6 +940,14 @@ require('lazy').setup({
           { name = 'path' },
         },
       }
+
+      -- Setup up vim-dadbod
+      cmp.setup.filetype({ 'sql' }, {
+        sources = {
+          { name = 'vim-dadbod-completion' },
+          { name = 'buffer' },
+        },
+      })
     end,
   },
 
@@ -1165,6 +1173,10 @@ require('lazy').setup({
     },
   },
 
+  -- Config for nice nvim sql integration
+  { 'tpope/vim-dadbod' },
+  { 'kristijanhusak/vim-dadbod-completion' },
+  { 'kristijanhusak/vim-dadbod-ui' },
   {
     'nvimdev/dashboard-nvim',
     -- event = 'VimEnter',
