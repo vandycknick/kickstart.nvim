@@ -199,6 +199,12 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+-- These mappings control the size of splits (height/width)
+vim.keymap.set('n', '<S-h>', '<c-w>5<', { desc = 'Change window size left.' })
+vim.keymap.set('n', '<S-l>', '<c-w>5>', { desc = 'Change window size right.' })
+vim.keymap.set('n', '<S-k>', '<C-W>+', { desc = 'Change window size top.' })
+vim.keymap.set('n', '<S-j>', '<C-W>-', { desc = 'Change window size bottom.' })
+
 vim.keymap.set('n', '<C-s>', '<cmd> w <CR>', { desc = 'Save file.' })
 
 vim.keymap.set('n', '<leader>tr', '<cmd> set rnu! <CR>', { desc = 'Toggle relative number' })
