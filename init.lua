@@ -208,7 +208,7 @@ local terminal_defaults = {
   height = 15,
 }
 local terminal = nil
-vim.keymap.set({ 'n' }, '<m-h>', function()
+vim.keymap.set({ 'n' }, '<M-h>', function()
   if terminal == nil then
     vim.cmd 'split'
     vim.cmd 'terminal'
